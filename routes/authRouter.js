@@ -7,7 +7,16 @@ const passport = require('passport');
 const authRouter = express.Router();
 authRouter.use(bodyParser.json());
 
-
+authRouter.route('/')
+    .get((req,res,next) => {
+        Users.find({})
+            .then((dishes) => {
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'application/json');
+                res.json(dishes);
+            }, (err) => next(err))
+            .catch((err) => next(err));
+    });
 
 authRouter.route('/signin')
     .post((req, res, next) => {
