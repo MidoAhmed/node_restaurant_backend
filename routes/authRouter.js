@@ -9,13 +9,7 @@ authRouter.use(bodyParser.json());
 
 authRouter.route('/')
     .get((req,res,next) => {
-        Users.find({})
-            .then((dishes) => {
-                res.statusCode = 200;
-                res.setHeader('Content-Type', 'application/json');
-                res.json(dishes);
-            }, (err) => next(err))
-            .catch((err) => next(err));
+        res.json({ok:"ok"});
     });
 
 authRouter.route('/signin')
