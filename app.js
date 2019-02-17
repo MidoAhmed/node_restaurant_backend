@@ -3,12 +3,12 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-var passport = require('passport');
+// var passport = require('passport');
+var swaggerDoc = require('./config/swaggerDoc');
 
-require('./passport');
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-var authRouter = require('./routes/authRouter');
+require('./middleware/passport');
+var v1 = require('./routes/v1');
+
 
 const mongoose = require('mongoose');
 
@@ -31,11 +31,10 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 //app.use(passport.initialize());
-app.use('/api', indexRouter);
-app.use('/api/users', usersRouter);
-app.use('/api/auth',authRouter);
+app.use('/api/v1',v1);
 
-
+// load swagger spec
+swaggerDoc(app);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
