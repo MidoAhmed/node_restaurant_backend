@@ -7,6 +7,11 @@ const passport = require('passport');
 const router = express.Router();
 router.use(bodyParser.json());
 
+router.route('/auth')
+    .get((req, res, next) => {
+        res.status(200).json({ok:"ok"});
+    });
+
 /**
  * @swagger
  *
