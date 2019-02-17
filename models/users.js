@@ -9,7 +9,15 @@ var userSchema = new Schema({
         required: true,
         unique: true
     },
-    name: {
+    lastName: {
+        type: String,
+        required: true
+    },
+    firstName: {
+        type: String,
+        required: true
+    },
+    phone: {
         type: String,
         required: true
     },
@@ -28,6 +36,21 @@ userSchema.methods.validatePassword = function(password) {
     const hash = crypto.pbkdf2Sync(password, this.salt, 10000, 512, 'sha512').toString('hex');
     return this.hash === hash;
 };
+
+// validation
+userSchema.methods.isEmailExists =  function(password) {
+
+};
+function isEmailExists(email, callback) {
+    if (email) {
+        mongoose.models['User'].count({ _id: { '$ne': this._id }, email: email }, function (err, result) {
+            if (err) {
+                return callback(err);
+            }
+            callback(!result);
+        })
+    }
+}
 
 userSchema.methods.generateJWT = function() {
     const today = new Date();
