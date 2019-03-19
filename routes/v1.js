@@ -3,14 +3,12 @@ const bodyParser = require('body-parser');
 const Users = require('../models/users');
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
+const auth = require("./auth");
+const blacklist = require('express-jwt-blacklist');
+
 
 const router = express.Router();
 router.use(bodyParser.json());
-
-router.route('/auth')
-    .get((req, res, next) => {
-        res.status(200).json({ok:"ok"});
-    });
 
 /**
  * @swagger
@@ -18,7 +16,7 @@ router.route('/auth')
  * /auth/signin:
  *   post:
  *     tags: ['user']
- *     summary: User Login
+ *     summary: User Sign in
  *     description: Returns Bearer Token for JWT authentication
  *     produces:
  *       - application/json
@@ -83,7 +81,7 @@ router.route('/auth/signin')
  * /auth/register:
  *   post:
  *     tags: ['user']
- *     summary: User Registration
+ *     summary: User Sign up
  *     description: Returns Bearer Token for JWT authentication
  *     produces:
  *       - application/json
@@ -172,5 +170,61 @@ router.route('/auth/register')
                 () => res.json({message:'Successfully created new user.', user: user.toAuthJSON() })
             ).catch((err) => next(err));
     });
+
+
+/**
+ * @swagger
+ *
+ * /auth/logout:
+ *   post:
+ *     tags: ['user']
+ *     summary: User Sign out
+ *     description: Returns success message
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: Logged Out Successfully
+ *       401:
+ *         description: Unauthorized
+ */
+router.route('/auth/logout')
+    .get(auth.required, auth.unauthorizedErrorHundler, (req, res, next) => {
+        blacklist.revoke(req.payload);
+        res.status(200).json({logout:"true"});
+    });
+
+
+/**
+ * @swagger
+ *
+ * /auth/authenticated:
+ *   post:
+ *     tags: ['user']
+ *     summary: User token verification
+ *     description: Returns the authenticated user
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: User still authenticated
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Resource doesn’t exist
+ *
+ */
+router.get('/auth/authenticated', auth.required, auth.unauthorizedErrorHundler, (req, res, next) => {
+    const { payload: { id } } = req;
+
+    return Users.findById(id)
+        .then((user) => {
+            if(!user) {
+                return res.status(404).json({message: 'User not Found'});
+            }
+
+            return res.json({ user: user });
+        });
+});
 
 module.exports = router;

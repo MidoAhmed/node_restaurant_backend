@@ -7,7 +7,7 @@ var logger = require('morgan');
 var swaggerDoc = require('./config/swaggerDoc');
 
 require('./middleware/passport');
-var v1 = require('./routes/v1');
+let v1 = require('./routes/v1');
 
 
 const mongoose = require('mongoose');
@@ -18,7 +18,7 @@ connect.then((db) => {
     console.log("Connected correctly to server");
 }, (err) => { console.log(err); });
 
-var app = express();
+let app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
