@@ -6,8 +6,8 @@ const jwt = require('jsonwebtoken');
 const passport = require('passport');
 const auth = require("./auth");
 const blacklist = require('express-jwt-blacklist');
-const uploadRouter = require('./uploadRouter');
 const multer = require('../config/multer.config');
+const {check, validationResult, body} = require('express-validator/check');
 
 const router = express.Router();
 router.use(bodyParser.json());
@@ -231,37 +231,53 @@ router.get('/auth/authenticated', auth.required, auth.unauthorizedErrorHundler, 
 
 
 router.route('/articles')
-    .post(auth.required, auth.unauthorizedErrorHundler, multer.single('image'), (req, res, next) => {
+    .post(auth.required,
+        auth.unauthorizedErrorHundler,
+        multer.single('image'), [
+            check('title').exists().withMessage('required'),
+            check('description').exists().isLength({min: 5}).withMessage('must be at least 5 chars long')
+        ], (req, res, next) => {
 
-        // check
-        try {
-            const {payload} = req;
-            if (!payload) {
-                return res.status(401).json({"message": "User not found"});
+            // check
+            try {
+                // Finds the validation errors in this request and wraps them in an object with handy functions
+                const errors = validationResult(req);
+                if (!errors.isEmpty()) {
+                    return res.status(422).json({errors: errors.array()});
+                }
+
+                const {payload} = req;
+                if (!payload) {
+                    return res.status(401).json({"message": "User not found"});
+                }
+
+                //validate incoming params
+                /*if (!req.body.title || !req.body.description) {
+                    return res.status(422).json({"message": "Some fields are required"});
+                }*/
+
+                let article = new Articles();
+                article.title = req.body.title;
+                article.description = req.body.description;
+                if (req.file) {
+                    article.image = req.file.originalname;
+                }
+                article.category = req.body.category;
+                article.comments = req.body.comments;
+                article.author = payload._id;
+
+                return article.save()
+                    .then(
+                        () => res.status(200).json({
+                            article: article.toWeb(),
+                            message: 'Successfully created new article.'
+                        })
+                    ).catch((err) => next(err));
+            } catch (error) {
+                return res.status(404).json(error);
             }
 
-            //validate incoming params
-            if (!req.body.title || !req.body.description) {
-                return res.status(422).json({"message": "Some fields are required"});
-            }
-
-            let article = new Articles();
-            article.title = req.body.title;
-            article.description = req.body.description;
-            article.image = req.file ? req.file.originalname : '';
-            article.category = req.body.category;
-            article.comments = req.body.comments;
-            article.author = payload._id;
-
-            return article.save()
-                .then(
-                    () => res.status(200).json({article: article.toWeb(), message: 'Successfully created new article.'})
-                ).catch((err) => next(err));
-        } catch (error) {
-            return res.status(404).json(error);
-        }
-
-    });
+        });
 
 router.route('/articles')
     .get(auth.required, auth.unauthorizedErrorHundler, (req, res, next) => {
@@ -272,8 +288,6 @@ router.route('/articles')
             })
             .catch((err) => next(err));
     });
-
-router.use('/imageUpload', uploadRouter);
 
 
 module.exports = router;

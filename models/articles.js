@@ -25,11 +25,11 @@ let commentSchema = new Schema({
 let ArticleSchema = mongoose.Schema({
     title: {
         type: String,
-        required: false,
+        required: true,
     },
     description: {
         type: String,
-        required: false,
+        required: true,
     },
     image: {
         type: String,
@@ -37,7 +37,8 @@ let ArticleSchema = mongoose.Schema({
     },
     category: {
         type: String,
-        required: true
+        required: false,
+        default: ''
     },
     comments: [commentSchema],
     author: {
