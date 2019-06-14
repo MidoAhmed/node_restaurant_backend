@@ -6,8 +6,8 @@ const jwt = require('jsonwebtoken');
 const passport = require('passport');
 const auth = require("./auth");
 const blacklist = require('express-jwt-blacklist');
-const multer = require('multer')
-const upload = multer()
+const uploadRouter = require('./uploadRouter');
+const multer = require('../config/multer.config');
 
 const router = express.Router();
 router.use(bodyParser.json());
@@ -231,15 +231,14 @@ router.get('/auth/authenticated', auth.required, auth.unauthorizedErrorHundler, 
 
 
 router.route('/articles')
-    .post(upload.none(), auth.required, auth.unauthorizedErrorHundler, (req, res, next) => {
+    .post(auth.required, auth.unauthorizedErrorHundler, multer.single('image'), (req, res, next) => {
+
         // check
         try {
             const {payload} = req;
             if (!payload) {
                 return res.status(401).json({"message": "User not found"});
             }
-
-            console.log(req)
 
             //validate incoming params
             if (!req.body.title || !req.body.description) {
@@ -249,7 +248,7 @@ router.route('/articles')
             let article = new Articles();
             article.title = req.body.title;
             article.description = req.body.description;
-            article.image = req.body.image;
+            article.image = req.file ? req.file.originalname : '';
             article.category = req.body.category;
             article.comments = req.body.comments;
             article.author = payload._id;
@@ -270,9 +269,11 @@ router.route('/articles')
             .populate('comments.author')
             .then((articles) => {
                 res.status(200).json(articles);
-            }, (err) => next(err))
+            })
             .catch((err) => next(err));
     });
+
+router.use('/imageUpload', uploadRouter);
 
 
 module.exports = router;

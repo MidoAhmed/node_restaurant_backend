@@ -33,7 +33,7 @@ let ArticleSchema = mongoose.Schema({
     },
     image: {
         type: String,
-        required: true
+        required: false
     },
     category: {
         type: String,
