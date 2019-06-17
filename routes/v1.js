@@ -1,13 +1,14 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const Users = require('../models/users');
-const Articles = require('../models/articles');
+const Article = require('../models/articleModel');
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
 const auth = require("./auth");
 const blacklist = require('express-jwt-blacklist');
 const multer = require('../config/multer.config');
 const {check, validationResult, body} = require('express-validator/check');
+const {to} = require('../services/utils');
 
 const router = express.Router();
 router.use(bodyParser.json());
@@ -236,9 +237,8 @@ router.route('/articles')
         multer.single('image'), [
             check('title').exists().withMessage('required'),
             check('description').exists().isLength({min: 5}).withMessage('must be at least 5 chars long')
-        ], (req, res, next) => {
+        ], async (req, res, next) => {
 
-            // check
             try {
                 // Finds the validation errors in this request and wraps them in an object with handy functions
                 const errors = validationResult(req);
@@ -250,43 +250,58 @@ router.route('/articles')
                 if (!payload) {
                     return res.status(401).json({"message": "User not found"});
                 }
+                console.log('payload', payload)
 
                 //validate incoming params
                 /*if (!req.body.title || !req.body.description) {
                     return res.status(422).json({"message": "Some fields are required"});
                 }*/
 
-                let article = new Articles();
-                article.title = req.body.title;
-                article.description = req.body.description;
-                if (req.file) {
-                    article.image = req.file.originalname;
-                }
-                article.category = req.body.category;
-                article.comments = req.body.comments;
-                article.author = payload._id;
+                req.body.owner = payload.id;
+                console.log('req.body', req.body)
+                let article = new Article(req.body);
+                console.log('article', article)
 
-                return article.save()
-                    .then(
-                        () => res.status(200).json({
-                            article: article.toWeb(),
-                            message: 'Successfully created new article.'
-                        })
-                    ).catch((err) => next(err));
+                let [err, _article] = await to(article.save());
+                if (err) return res.status(422).json({error: err});
+
+                return res.status(201).json({
+                    article: _article.toWeb(),
+                    message: 'Successfully created new article.'
+                });
+
             } catch (error) {
-                return res.status(404).json(error);
+                console.log(error);
+                return res.status(400).json(error);
             }
 
         });
 
 router.route('/articles')
     .get(auth.required, auth.unauthorizedErrorHundler, (req, res, next) => {
-        Articles.find({})
-            .populate('comments.author')
+        Article.find({})
+        //.populate('comments.author')
+        //.populate('owner')
             .then((articles) => {
                 res.status(200).json(articles);
             })
             .catch((err) => next(err));
+    });
+
+
+router.route('/articles')
+    .delete(auth.required, auth.unauthorizedErrorHundler, (req, res, next) => {
+        Article.remove({})
+            .then((result) => {
+                res.status(200).json(result);
+            }, (err) => next(err))
+            .catch((err) => next(err));
+    });
+
+router.route('/articles')
+    .put(auth.required, auth.unauthorizedErrorHundler, (req, res, next) => {
+        res.statusCode = 403;
+        res.end('PUT operation not supported on /articles');
     });
 
 

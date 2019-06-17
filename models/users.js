@@ -56,7 +56,7 @@ userSchema.methods.generateJWT = function() {
     const today = new Date();
     const expirationDate = new Date(today);
     //expirationDate.setDate(today.getDate() + 1);
-    expirationDate.setMinutes(today.getMinutes() + 5); // expires in 5 min
+    expirationDate.setMinutes(today.getMinutes() + 60); // expires in 5 min
 
     return jwt.sign({
         id: this._id,

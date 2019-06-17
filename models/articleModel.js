@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 
-let commentSchema = new Schema({
+let CommentSchema = new Schema({
     rating: {
         type: Number,
         min: 1,
@@ -40,8 +40,8 @@ let ArticleSchema = mongoose.Schema({
         required: false,
         default: ''
     },
-    comments: [commentSchema],
-    author: {
+    comments: [CommentSchema],
+    owner: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     }
@@ -53,5 +53,7 @@ ArticleSchema.methods.toWeb = function () {
     return json;
 };
 
-let Articles = mongoose.model('Article', ArticleSchema);
-module.exports = Articles;
+
+// creating the Article collection
+let ArticleModel = mongoose.model('Article', ArticleSchema);
+module.exports = ArticleModel;

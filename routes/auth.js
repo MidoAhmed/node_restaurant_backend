@@ -8,11 +8,12 @@ var isRevokedCallback = function(req, payload, done){
 
 const getTokenFromHeaders = (req) => {
     const {headers: {authorization}} = req;
-
     if (authorization && authorization.split(' ')[0] === 'Bearer') {
         const token = authorization.split(' ')[1];
         return token;
     }
+    console.log('null');
+
     return null;
 };
 
@@ -21,7 +22,7 @@ const auth = {
         secret: 'your_jwt_secret',
         userProperty: 'payload',
         isRevoked: blacklist.isRevoked,
-        // isRevoked: isRevokedCallback,
+        //isRevoked: isRevokedCallback,
         getToken: getTokenFromHeaders,
     }),
     optional: jwt({
@@ -34,6 +35,7 @@ const auth = {
         if (err.name === 'UnauthorizedError') {
             return res.status(401).json({message: err.message});
         }
+        next();
     }
 };
 
