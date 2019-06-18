@@ -4,12 +4,12 @@ const Users = require('../models/users');
 const Article = require('../models/articleModel');
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
-const auth = require("./auth");
+const auth = require("../middlewares/auth");
 const blacklist = require('express-jwt-blacklist');
 const multer = require('../config/multer.config');
 const {check, validationResult, body} = require('express-validator/check');
-const {to} = require('../services/utils');
-const pe = require('parse-error');
+const {to, ReE, ReS} = require('../utils/utils');
+const CutomError = require('../utils/customError');
 
 const router = express.Router();
 router.use(bodyParser.json());
@@ -249,7 +249,8 @@ router.route('/articles')
 
                 const {payload} = req;
                 if (!payload) {
-                    return res.status(401).json({"message": "User not found"});
+                    let err = new CutomError('User not found', 'unknown');
+                    return ReE(res, err, 401);
                 }
 
                 //validate incoming params
@@ -261,12 +262,9 @@ router.route('/articles')
                 let article = new Article(req.body);
 
                 let [err, _article] = await to(article.save());
-                if (err) return res.status(422).json({error: err});
+                if (err) return ReE(res, err, 422);
 
-                return res.status(201).json({
-                    article: _article.toWeb(),
-                    message: 'Successfully created new article.'
-                });
+                return ReS(res, {article: _article.toWeb()}, 201, 'Successfully created new article.', 'articles.getAll');
 
             } catch (error) {
                 console.log(error);
@@ -363,7 +361,7 @@ router.route('/articles/:articleId')
 
 router.route('/articles/:articleId')
     .delete(auth.required, auth.unauthorizedErrorHundler, async (req, res, next) => {
-        
+
         try {
             let articleId = req.params.articleId;
             let [err, result] = await to(Article.findByIdAndRemove(articleId));

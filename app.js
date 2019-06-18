@@ -8,7 +8,7 @@ const fs = require('fs');
 // var passport = require('passport');
 var swaggerDoc = require('./config/swaggerDoc');
 
-require('./middleware/passport');
+require('./middlewares/passport');
 let v1 = require('./routes/v1');
 
 
