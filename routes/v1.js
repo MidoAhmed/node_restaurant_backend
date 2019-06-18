@@ -9,6 +9,7 @@ const blacklist = require('express-jwt-blacklist');
 const multer = require('../config/multer.config');
 const {check, validationResult, body} = require('express-validator/check');
 const {to} = require('../services/utils');
+const pe = require('parse-error');
 
 const router = express.Router();
 router.use(bodyParser.json());
@@ -250,7 +251,6 @@ router.route('/articles')
                 if (!payload) {
                     return res.status(401).json({"message": "User not found"});
                 }
-                console.log('payload', payload)
 
                 //validate incoming params
                 /*if (!req.body.title || !req.body.description) {
@@ -258,9 +258,7 @@ router.route('/articles')
                 }*/
 
                 req.body.owner = payload.id;
-                console.log('req.body', req.body)
                 let article = new Article(req.body);
-                console.log('article', article)
 
                 let [err, _article] = await to(article.save());
                 if (err) return res.status(422).json({error: err});
@@ -300,8 +298,83 @@ router.route('/articles')
 
 router.route('/articles')
     .put(auth.required, auth.unauthorizedErrorHundler, (req, res, next) => {
-        res.statusCode = 403;
-        res.end('PUT operation not supported on /articles');
+        let err = new Error('PUT operation not supported on /articles');
+        err.status = 403;
+        return next(err);
+    });
+
+
+router.route('/articles/:articleId')
+    .get(auth.required, auth.unauthorizedErrorHundler, async (req, res, next) => {
+
+        try {
+            let articleId = req.params.articleId;
+
+            let [err, article] = await to(Article.findById(articleId));
+            if (err) return res.status(422).json({Error: "Error finding article"});
+
+            if (!article) return res.status(422).json({Error: `ArticleId not found with id: ${articleId}`});
+
+            return res.status(200).json({
+                article: article.toWeb()
+            });
+        } catch (error) {
+            console.log(error);
+            return res.status(400).json(error);
+        }
+    });
+
+router.route('/articles/:articleId')
+    .post(auth.required, auth.unauthorizedErrorHundler, (req, res, next) => {
+        let err = new Error('POST operation not supported on /articles/' + req.params.leaderId);
+        err.status = 403;
+        return next(err);
+    });
+
+
+router.route('/articles/:articleId')
+    .put(auth.required, auth.unauthorizedErrorHundler,
+        multer.single('image'), [
+            check('title').exists().withMessage('required'),
+            check('description').exists().isLength({min: 5}).withMessage('must be at least 5 chars long')
+        ], async (req, res, next) => {
+
+            try {
+                // Finds the validation errors in this request and wraps them in an object with handy functions
+                const errors = validationResult(req);
+                if (!errors.isEmpty()) {
+                    return res.status(422).json({errors: errors.array()});
+                }
+
+                let articleId = req.params.articleId;
+                let [err, article] = await to(Article.findByIdAndUpdate(articleId, {$set: req.body}, {new: true}));
+
+                if (err) return res.status(422).json({Error: "Error occured trying to update the article"});
+
+                return res.status(200).json({
+                    article: article.toWeb()
+                });
+
+            } catch (error) {
+                console.log(error);
+                return res.status(400).json(error);
+            }
+        });
+
+router.route('/articles/:articleId')
+    .delete(auth.required, auth.unauthorizedErrorHundler, async (req, res, next) => {
+        
+        try {
+            let articleId = req.params.articleId;
+            let [err, result] = await to(Article.findByIdAndRemove(articleId));
+
+            if (err) return res.status(422).json({Error: "Error occured trying to delete the article"});
+
+            return res.status(200).json({result: result, message: 'Deleted Article'});
+        } catch (error) {
+            console.log(error);
+            return res.status(400).json(error);
+        }
     });
 
 
