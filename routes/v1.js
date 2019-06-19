@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const Users = require('../models/users');
-const Article = require('../models/articleModel');
+const Article = require('../models/article.model');
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
 const auth = require("../middlewares/auth");
@@ -244,7 +244,9 @@ router.route('/articles')
                 // Finds the validation errors in this request and wraps them in an object with handy functions
                 const errors = validationResult(req);
                 if (!errors.isEmpty()) {
-                    return res.status(422).json({errors: errors.array()});
+                    // return res.status(422).json({errors: errors.array()});
+                    return ReE(res, errors.array(), 422);
+
                 }
 
                 const {payload} = req;

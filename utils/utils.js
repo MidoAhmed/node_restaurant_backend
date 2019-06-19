@@ -12,6 +12,7 @@ module.exports.to = async (promise) => {
 
 // Error Web Response
 module.exports.ReE = function (res, err, code) {
+    let result = {success: false};
 
     if (typeof err === 'object' && typeof err.message !== 'undefined' && err.type) {
         err = {
@@ -24,7 +25,8 @@ module.exports.ReE = function (res, err, code) {
         res.statusCode = code;
     }
 
-    return res.json({success: false, error: err});
+    result = Object.assign(result, {error: err});
+    return res.json(result);
 };
 
 
