@@ -1,7 +1,8 @@
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
-const crypto = require('crypto');
-const jwt = require('jsonwebtoken');
+const mongoose  = require('mongoose');
+const Schema    = mongoose.Schema;
+const crypto    = require('crypto');
+const jwt       = require('jsonwebtoken');
+const validate  = require('mongoose-validator');
 
 let CommentSchema = new Schema({
     rating: {
@@ -26,10 +27,21 @@ let ArticleSchema = mongoose.Schema({
     title: {
         type: String,
         required: true,
+        validate: validate({
+                     validator: 'isLength',
+                     arguments: [4, 50],
+                     message: 'Name should be between {ARGS[0]} and {ARGS[1]} characters',
+                 })
     },
     description: {
         type: String,
         required: true,
+        /*validate: {
+            validator: function(v) {
+                return /\d{3}-\d{3}-\d{4}/.test(v);
+            },
+            message: props => `${props.value} is not a valid phone number!`
+        }*/
     },
     image: {
         type: String,

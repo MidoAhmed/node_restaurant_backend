@@ -291,3 +291,9 @@
 [0mPOST /api/v1/auth/signin [32m200 [0m131.093 ms - 368[0m
 [0mPOST /api/v1/auth/signin [32m200 [0m127.675 ms - 368[0m
 [0mPOST /api/v1/auth/signin [32m200 [0m143.232 ms - 368[0m
+[0mPOST /api/v1/articles [33m401 [0m7.964 ms - 78[0m
+[0mPOST /api/v1/auth/signin [32m200 [0m135.509 ms - 368[0m
+[0mPOST /api/v1/auth/register [33m409 [0m6.808 ms - 99[0m
+[0mPOST /api/v1/articles [33m401 [0m0.975 ms - 78[0m
+[0mPOST /api/v1/articles [33m422 [0m31.545 ms - 139[0m
+[0mPOST /api/v1/articles [33m422 [0m65.105 ms - 190[0m
