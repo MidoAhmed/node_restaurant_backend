@@ -1,16 +1,16 @@
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
-const Users = require('../models/users');
+const User = require('../models/user.model');
 
 // set passport local strategy
 passport.use(new LocalStrategy(
     {
-        usernameField : 'email',
-        passwordField : 'password'
+        usernameField: 'email',
+        passwordField: 'password'
     },
     function (email, password, cb) {
         //this one is typically a DB call. Assume that the returned user object is pre-formatted and ready for storing in JWT
-        return Users.findOne({email})
+        return User.findOne({email})
             .then(user => {
                 // Return if :  user not found in database || password is wrong
                 if (!user || !user.validatePassword(password)) {

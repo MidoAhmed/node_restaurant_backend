@@ -55,5 +55,5 @@ ArticleSchema.methods.toWeb = function () {
 
 
 // creating the Article collection
-let ArticleModel = mongoose.model('Article', ArticleSchema);
-module.exports = ArticleModel;
+let Article = mongoose.model('Article', ArticleSchema);
+module.exports = Article;

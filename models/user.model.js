@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 
-var userSchema = new Schema({
+var UserSchema = new Schema({
     email: {
         type: String,
         required: true,
@@ -27,18 +27,18 @@ var userSchema = new Schema({
     timestamps: true
 });
 
-userSchema.methods.setPassword = function(password) {
+UserSchema.methods.setPassword = function(password) {
     this.salt = crypto.randomBytes(16).toString('hex');
     this.hash = crypto.pbkdf2Sync(password, this.salt, 10000, 512, 'sha512').toString('hex');
 };
 
-userSchema.methods.validatePassword = function(password) {
+UserSchema.methods.validatePassword = function(password) {
     const hash = crypto.pbkdf2Sync(password, this.salt, 10000, 512, 'sha512').toString('hex');
     return this.hash === hash;
 };
 
 // validation
-userSchema.methods.isEmailExists =  function(password) {
+UserSchema.methods.isEmailExists =  function(password) {
 
 };
 function isEmailExists(email, callback) {
@@ -52,7 +52,7 @@ function isEmailExists(email, callback) {
     }
 }
 
-userSchema.methods.generateJWT = function() {
+UserSchema.methods.generateJWT = function() {
     const today = new Date();
     const expirationDate = new Date(today);
     //expirationDate.setDate(today.getDate() + 1);
@@ -66,7 +66,7 @@ userSchema.methods.generateJWT = function() {
     }, 'your_jwt_secret');
 };
 
-userSchema.methods.toAuthJSON = function() {
+UserSchema.methods.toAuthJSON = function() {
     return {
         _id: this._id,
         email: this.email,
@@ -74,6 +74,6 @@ userSchema.methods.toAuthJSON = function() {
     };
 };
 
-var Users = mongoose.model('User', userSchema);
-
-module.exports = Users;
+// creating the User collection
+let User = mongoose.model('User', UserSchema);
+module.exports = User;
