@@ -1,38 +1,40 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
-const fs = require('fs');
-
-// var passport = require('passport');
-var swaggerDoc = require('./config/swaggerDoc');
-
+const createError   = require('http-errors');
+const express       = require('express');
+const path          = require('path');
+const cookieParser  = require('cookie-parser');
+const logger        = require('morgan');
+const fs            = require('fs');
+const swaggerDoc    = require('./config/swaggerDoc');
 require('./middlewares/passport');
-let v1 = require('./routes/v1');
+const v1            = require('./routes/v1');
+const CONFIG        = require('./config/config');
 
 
-const mongoose = require('mongoose');
-
-const url = 'mongodb://localhost:27017/conFusion';
-const connect = mongoose.connect(url);
-connect.then((db) => {
-    console.log("Connected correctly to server");
+// database
+const mongoose  = require('mongoose');
+const url       = `${CONFIG.db_protocol}://${CONFIG.db_host}:${CONFIG.db_port}/${CONFIG.db_name}`;
+mongoose.connect(url).then((db) => {
+    console.log("Connected correctly to server : ", url);
 }, (err) => {
     console.log(err);
 });
 
+// express app
 let app = express();
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
 
+// logger
 app.use(logger('dev', {
     stream: fs.createWriteStream(path.join(__dirname, 'access.log'), {flags: 'a'})
 }));
 app.use(logger('dev'));
+
+
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());

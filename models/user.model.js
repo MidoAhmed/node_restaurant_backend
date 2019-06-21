@@ -1,9 +1,10 @@
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
-const crypto = require('crypto');
-const jwt = require('jsonwebtoken');
+const mongoose  = require('mongoose');
+const Schema    = mongoose.Schema;
+const crypto    = require('crypto');
+const jwt       = require('jsonwebtoken');
+const CONFIG    = require('../config/config');
 
-var UserSchema = new Schema({
+let UserSchema = new Schema({
     email: {
         type: String,
         required: true,
@@ -55,8 +56,8 @@ function isEmailExists(email, callback) {
 UserSchema.methods.generateJWT = function() {
     const today = new Date();
     const expirationDate = new Date(today);
-    //expirationDate.setDate(today.getDate() + 1);
-    expirationDate.setMinutes(today.getMinutes() + 60); // expires in 5 min
+    console.log(CONFIG.jwt_encryption)
+    expirationDate.setMinutes(today.getMinutes() + parseInt(CONFIG.jwt_expiration, 10) * 24); // expires in CONFIG.jwt_expiration min
 
     return jwt.sign({
         id: this._id,

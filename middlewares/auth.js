@@ -1,10 +1,9 @@
-const jwt = require('express-jwt');
-const blacklist = require('express-jwt-blacklist');
+const jwt            = require('express-jwt');
+const blacklist      = require('express-jwt-blacklist');
+const CONFIG         = require('../config/config');
+const {to, ReE, ReS} = require('../utils/utils');
+const CutomError     = require('../utils/customError');
 
-var isRevokedCallback = function(req, payload, done){
-    // new Error('JWT missing tokenId claim' + tokenId)
-    return done(new Error('JWT missing tokenId claim'));
-};
 
 const getTokenFromHeaders = (req) => {
     const {headers: {authorization}} = req;
@@ -12,28 +11,27 @@ const getTokenFromHeaders = (req) => {
         const token = authorization.split(' ')[1];
         return token;
     }
-    console.log('null');
-
     return null;
 };
 
 const auth = {
     required: jwt({
-        secret: 'your_jwt_secret',
+        secret: CONFIG.jwt_encryption,
         userProperty: 'payload',
         isRevoked: blacklist.isRevoked,
         //isRevoked: isRevokedCallback,
         getToken: getTokenFromHeaders,
     }),
     optional: jwt({
-        secret: 'your_jwt_secret',
+        secret: CONFIG.jwt_encryption,
         userProperty: 'payload',
         getToken: getTokenFromHeaders,
         credentialsRequired: false,
     }),
     unauthorizedErrorHundler: (err, req, res, next) => {
         if (err.name === 'UnauthorizedError') {
-            return res.status(401).json({message: err.message});
+            let errror = new CutomError(err.message, 'UnauthorizedError');
+            return ReE(res, errror, 401);
         }
         next();
     }
