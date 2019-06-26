@@ -22,7 +22,7 @@ pipeline {
                 sh 'npm test'
             }
         }
-        stage "Deploy"{
+        stage ('Deploy') {
             steps {
                     sh('deploy.sh')
                 }
