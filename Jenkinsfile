@@ -24,6 +24,7 @@ pipeline {
         }
         stage ('Deploy') {
             steps {
+                    echo 'Deploying...'
                     sh('./script/deploy.sh')
                 }
         }
