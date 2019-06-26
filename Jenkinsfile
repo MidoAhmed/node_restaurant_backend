@@ -22,5 +22,10 @@ pipeline {
                 sh 'npm test'
             }
         }
+        stage "Deploy"{
+            steps {
+                    sh('deploy.sh')
+                }
+        }
     }
 }
