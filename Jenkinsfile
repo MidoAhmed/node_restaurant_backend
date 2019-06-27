@@ -28,12 +28,5 @@ pipeline {
                     sh('./script/deploy.sh')
                 }
         }
-        stage ('docker') {
-                 agent {
-                        dockerfile {
-                          filename "back-end/dockerfiles/ci/Dockerfile"
-                        }
-                 }
-        }
     }
 }
