@@ -23,7 +23,9 @@ pipeline {
             }
         }
         stage ('Deploy') {
-            agent none
+            agent {
+            label 'linux'
+            }
             steps {
                     echo 'Deploying...'
                     sh('./script/deploy.sh')
