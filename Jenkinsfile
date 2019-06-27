@@ -22,6 +22,13 @@ pipeline {
                 sh 'npm test'
             }
         }
+        stage('docker'){
+         agent {
+                dockerfile {
+                  filename "back-end/dockerfiles/ci/Dockerfile"
+                }
+                }
+        }
         stage ('Deploy') {
             steps {
                     echo 'Deploying...'
