@@ -9,4 +9,4 @@ whoami
 echo '-------------------'
 cd / && pwd
 echo '-------------------'
-docker ps
+sudo docker ps
