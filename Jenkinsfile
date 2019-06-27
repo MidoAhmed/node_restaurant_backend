@@ -23,7 +23,7 @@ pipeline {
             }
         }
         stage ('Deploy') {
-            agent any
+            agent none
             steps {
                     echo 'Deploying...'
                     sh('./script/deploy.sh')
