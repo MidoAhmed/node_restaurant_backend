@@ -23,12 +23,15 @@ pipeline {
             }
         }
         stage ('Deploy') {
-            agent {
-            label 'linux'
-            }
+            agent any
             steps {
                     echo 'Deploying...'
-                    sh('./script/deploy.sh')
+                    sh 'cd ..'
+                    sh 'cd ..'
+                    sh 'pwd'
+                    sh('deploy.sh')
+                    sh 'pwd'
+                    sh 'ls'
                 }
         }
     }
