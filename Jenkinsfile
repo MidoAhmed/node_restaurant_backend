@@ -5,7 +5,7 @@ pipeline {
     agent {
         docker {
             image 'node'
-            args '-u root --link ceb9894bd77c:TempContainer'
+            args '-u root'
         }
     }
 
