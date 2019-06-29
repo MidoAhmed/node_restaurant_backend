@@ -26,6 +26,7 @@ pipeline {
             agent any
             steps {
                     echo 'Deploying...'
+                    sh 'exit'
                     sh 'cd ..'
                     sh 'cd ..'
                     sh 'pwd'
