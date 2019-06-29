@@ -26,6 +26,7 @@ pipeline {
             steps {
                     echo 'Deploying...'
                     sh 'ls'
+                    sh 'exit'
                     sh 'docker ps -a -q'
                     sh 'cd ..'
                     sh 'cd ..'
