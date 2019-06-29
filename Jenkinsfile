@@ -5,7 +5,7 @@ pipeline {
     agent {
         docker {
             image 'node'
-            args '-u root --link ceb9894bd77c:TempContainer'
+            args '-u root'
         }
     }
 
@@ -23,12 +23,15 @@ pipeline {
             }
         }
         stage ('Deploy') {
-            agent {
-            label 'linux'
-            }
+            agent any
             steps {
                     echo 'Deploying...'
-                    sh('./script/deploy.sh')
+                    sh 'cd ..'
+                    sh 'cd ..'
+                    sh 'pwd'
+                    sh 'ls'
+                    sh('deploy.sh')
+                    sh 'ls'
                 }
         }
     }
