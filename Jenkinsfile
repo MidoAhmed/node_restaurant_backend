@@ -20,13 +20,7 @@ pipeline {
         stage ('Deploy') {
             steps {
                     echo 'Deploying...'
-                    sh 'ls'
-                    sh 'exit'
-                    sh 'docker ps -a -q'
-                    sh 'cd ..'
-                    sh 'cd ..'
-                    sh 'pwd'
-                    sh('deploy.sh')
+                    sh('./script/deploy.sh')
                     sh 'pwd'
                     sh 'ls'
                 }
