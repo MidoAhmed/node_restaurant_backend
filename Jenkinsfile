@@ -23,7 +23,6 @@ pipeline {
             }
         }
         stage ('Deploy') {
-            agent any
             steps {
                     echo 'Deploying...'
                     sh 'ls'
