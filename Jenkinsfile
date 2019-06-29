@@ -26,7 +26,8 @@ pipeline {
             agent any
             steps {
                     echo 'Deploying...'
-                    sh 'exit'
+                    sh 'docker stop $(docker ps -a -q)'
+                    sh 'docker rm $(docker ps -a -q)'
                     sh 'cd ..'
                     sh 'cd ..'
                     sh 'pwd'
